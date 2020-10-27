@@ -1,0 +1,14 @@
+main {
+    display: grid;
+    grid-template: 1fr/1fr 1fr;
+}
+
+.left {
+    grid-area: 1/1;
+    background-color: brown;
+}
+
+.right {
+    grid-area: 1/2;
+    background-color: chocolate;
+}
