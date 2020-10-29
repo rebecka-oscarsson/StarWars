@@ -5,31 +5,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="starwars.js" defer></script>
-  <link rel="stylesheet" href="starwars.css">
+    <link rel="stylesheet" href="starwars.css">
     <title>Document</title>
 </head>
 
 <body>
-    <header>header</header>
+    <header>
+        <h1>STAR WARS CATALOG</h1>
+    </header>
 
     <main>
 
         <section class="left">
+
             <h2>characters</h2>
+            <div class="loading">loading...</div>
             <ul class="characters">
             </ul>
-            <footer><span class="back">bakåt</span><a href=# class="forward">framåt</a></footer>
+
+            <footer>
+                <a href=# class="back">bakåt</a>
+                <a href=# class="forward">framåt</a>
+            </footer>
+
         </section>
 
-        <section class="right">
-            <div class="loading">loading...</div>
+        <section class="topRight">
+
             <h2>details</h2>
+            <div class="loadingTopRight hidden">loading...</div>
             <ul class="details">
             </ul>
-            <h2>planet</h2>
+
+        </section>
+
+        <section class="bottomRight">
+
+            <div class="loadingBottomRight hidden">loading...</div>
             <ul class="planet">
             </ul>
-            
+
         </section>
 
     </main>
