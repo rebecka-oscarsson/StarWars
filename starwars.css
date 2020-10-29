@@ -12,3 +12,5 @@ main {
     grid-area: 1/2;
     background-color: chocolate;
 }
+
+.hidden {display:none}
