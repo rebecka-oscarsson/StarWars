@@ -1,19 +1,40 @@
 //Hämtar från API
 
+
 async function getData(url) {
+
+
   let response = await fetch(url);
   if (!response.ok) {
     throw new Error(response.status)
   } else {
     let peopleData = await response.json()
 
-    let loading = document.querySelector(".loading");
     loading.classList.add("hidden")
 
     return peopleData
   }
 }
 
+//Kör funktionen som hämtar och skriver ut data
+
+let firstPage = getData('http://swapi.dev/api/people/?page=1')
+  .then(function (response) {
+    printNames(response)
+  })
+  .catch(function (error) {
+    console.log(error + "det blev fel")
+  })
+
+
+//sudda
+function erase(element) {
+  if (element.hasChildNodes) {
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
+  }
+}
 
 
 
@@ -21,14 +42,9 @@ async function getData(url) {
 //Skriver ut egenskaper när man klickar på figurerna
 function printPersonalData(properties, data) {
 
-
-
   let details = document.querySelector(".details");
-  if (details.hasChildNodes) {
-    while (details.firstChild) {
-      details.removeChild(details.firstChild);
-    }
-  }
+  erase(details)
+
 
   let loading = document.querySelector(".loadingTopRight");
   loading.classList.remove('hidden');
@@ -45,13 +61,10 @@ function printPersonalData(properties, data) {
 //Hämtar och skriver ut hemplanet
 
 function getPlanet(person) {
-  //bryt ut
+
   let planetList = document.querySelector(".planet");
-  if (planetList.hasChildNodes) {
-    while (planetList.firstChild) {
-      planetList.removeChild(planetList.firstChild);
-    }
-  }
+  erase(planetList)
+
 
   let loading = document.querySelector(".loadingBottomRight");
   loading.classList.remove('hidden');
@@ -61,14 +74,11 @@ function getPlanet(person) {
 
     .then(function (response) {
 
-
-
       let planetData = Object.values(response);
       let planetProperties = Object.keys(response);
 
 
-
-      for (i = 0; i < 6; i++) {
+      for (i = 0; i < 6; i++) {//statisk lösning gör om
 
         if (i == 0) {
           newH3 = document.createElement("h3");
@@ -85,6 +95,8 @@ function getPlanet(person) {
     })
 }
 
+
+
 //Skriver ut namnen på figurerna och lägger till eventListeners
 
 function printNames(data) {
@@ -92,13 +104,7 @@ function printNames(data) {
 
   let nameList = document.querySelector(".characters");
 
-  //sudda
-  if (nameList.hasChildNodes) {
-    while (nameList.firstChild) {
-      nameList.removeChild(nameList.firstChild);
-    }
-  }
-
+  erase(nameList)
 
 
   for (i = 0; i < data.results.length; i++) {
@@ -135,13 +141,16 @@ function printNames(data) {
 
 
 //Gå bakåt och framåt
-let vafan = getData("http://swapi.dev/api/people/?page=1")
-  .then(function (resultat) {
-    starwarsgubbar = resultat
-    alert(starwarsgubbar.next)
-  });
 
 let pageNumber = 1;
+let footer = document.querySelector(".page");
+
+getData('http://swapi.dev/api/people/?page=1')
+.then(function (resultat) {
+  numberofPages = Math.ceil(resultat.count / 10);
+  footer.append(`${pageNumber} / ${numberofPages}`)//det här borde jag nog göra längst upp när sidan laddas
+});
+
 
 let backLink = document.querySelector(".back");
 backLink.addEventListener("click", goBack);
@@ -149,50 +158,67 @@ backLink.addEventListener("click", goBack);
 let forwardLink = document.querySelector(".forward");
 forwardLink.addEventListener("click", goForward);
 
+
 function goBack() {
+
+  let nameList = document.querySelector(".characters");
+
+
   if (pageNumber > 1) {
+    erase(nameList)
+
+
+    let loading = document.querySelector(".loading");
+    loading.classList.remove('hidden');
     pageNumber--;
     let url = `http://swapi.dev/api/people/?page=${pageNumber}`;
+
     getData(url)
       .then(function (response) {
-        printNames(response)
+
+        erase(footer);
+        let numberofPages = Math.ceil(response.count / 10);
+        footer.append(`${pageNumber} / ${numberofPages}`)
+
+
+
+
+        printNames(response);
+        loading.classList.add('hidden');
       })
   }
 }
 
-getData('http://swapi.dev/api/people/?page=1')
-  .then(function (response) {
-    printNames(response)
-  })
-  .catch(function (error) {
-    console.log(error + "det blev fel")
-  })
+
 
 function goForward() {
-
-  nextPage = getData(`http://swapi.dev/api/people/?page=${pageNumber}`).then(function (resultat) {
-    return (resultat.next)
-  });
-  //det här verkar onödigt långsamt men jag fattar inte hur jag får ut infon utan att hämta datan igen
+  let nameList = document.querySelector(".characters");
+  erase(nameList);
 
 
-  if (nextPage != "null") {
-    pageNumber++;
-    let url = `http://swapi.dev/api/people/?page=${pageNumber}`;
-    getData(url)
-      .then(function (response) {
-        printNames(response)
+  let loading = document.querySelector(".loading");
+  loading.classList.remove('hidden');
+
+
+  let url = `http://swapi.dev/api/people/?page=${pageNumber}`;
+  getData(url)
+    .then(function (response) {
+        if (response.next != "null") {
+          pageNumber++;
+          erase(footer);
+          Math.ceil(response.count / 10);
+          footer.append(`${pageNumber} / ${numberofPages}`)
+
+          printNames(response);
+          loading.classList.add('hidden');
+        }
+
+
       })
-  }
-}
+
+    }
+
+      //visar loading första gången sidan hämtas
 
 
-
-// om jag lägger kod här körs den innan sidan laddas
-
-
-
-// Christoffer Korell
-// const firstNameList = getData('http://swapi.dev/api/people/?page=1')
-// .then((result)=>{console.log(result)})
-// .catch((error)=>{alert(error)})
+      let loading = document.querySelector(".loading"); loading.classList.remove("hidden")

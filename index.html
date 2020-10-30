@@ -10,45 +10,49 @@
 </head>
 
 <body>
-    <header>
-        <h1>STAR WARS CATALOG</h1>
-    </header>
 
-    <main>
+    <div class="wrapper">
+
+        <header>
+            <h1>STAR WARS<br>CATALOG</h1>
+        </header>
+
+
 
         <section class="left">
 
-            <h2>characters</h2>
+            <h2>Characters</h2>
             <div class="loading">loading...</div>
             <ul class="characters">
             </ul>
 
             <footer>
-                <a href=# class="back">bakåt</a>
-                <a href=# class="forward">framåt</a>
+                <a href=# class="back">&#9664;</a>
+                <span class="page"></span>
+                <a href=# class="forward">&#9654;</a>
             </footer>
 
         </section>
 
-        <section class="topRight">
 
-            <h2>details</h2>
-            <div class="loadingTopRight hidden">loading...</div>
-            <ul class="details">
-            </ul>
+        <section class="right">
+            <h2>Details</h2>
+            <section class="topRight">
+                <div class="loadingTopRight hidden">loading...</div>
+                <ul class="details">
+                </ul>
+            </section>
 
+            <section class="bottomRight">
+
+                <div class="loadingBottomRight hidden">loading...</div>
+                <ul class="planet">
+                </ul>
+
+            </section>
         </section>
 
-        <section class="bottomRight">
-
-            <div class="loadingBottomRight hidden">loading...</div>
-            <ul class="planet">
-            </ul>
-
-        </section>
-
-    </main>
-
+    </div>
 </body>
 
 </html>
