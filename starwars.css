@@ -5,7 +5,7 @@ body {
     font-family: 'Roboto', sans-serif;
 }
 
-h1 {line-height: 1em; font-size: 64px;}
+h1 {line-height: 1em; font-size: 4em; max-width: 50%;}
 
 h1,h2 {
     color: yellow;
@@ -25,10 +25,10 @@ h2 {
     padding: 0.5em;
     
    
-font-size: 30px;
+font-size: 2em;
 font-style: normal;
 font-weight: 400;
-line-height: 32px;
+
 letter-spacing: 0.2em;
 text-align: center;
 

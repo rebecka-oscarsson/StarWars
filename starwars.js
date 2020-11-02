@@ -8,22 +8,27 @@ async function getData(url) {
   if (!response.ok) {
     throw new Error(response.status)
   } else {
-    let peopleData = await response.json()
+    let starWarsData = await response.json()
 
     loading.classList.add("hidden")
 
-    return peopleData
+    return starWarsData
   }
 }
 
 //Kör funktionen som hämtar och skriver ut data
 
+let pageNumber = 1;
+let footer = document.querySelector(".page");
+
 let firstPage = getData('http://swapi.dev/api/people/?page=1')
   .then(function (response) {
-    printNames(response)
+    printNames(response); //skriver ut namn på 10 karaktärer
+    let numberofPages = Math.ceil(response.count / 10); //räknar hur många sidor och rundar uppåt
+    footer.append(`${pageNumber} / ${numberofPages}`); //skriver ut sidnummer
   })
   .catch(function (error) {
-    console.log(error + "det blev fel")
+    alert("det gick inte att ladda sidan, felkod" + error)
   })
 
 
@@ -37,14 +42,11 @@ function erase(element) {
 }
 
 
-
-
 //Skriver ut egenskaper när man klickar på figurerna
 function printPersonalData(properties, data) {
 
   let details = document.querySelector(".details");
   erase(details)
-
 
   let loading = document.querySelector(".loadingTopRight");
   loading.classList.remove('hidden');
@@ -60,32 +62,27 @@ function printPersonalData(properties, data) {
 
 //Hämtar och skriver ut hemplanet
 
-function getPlanet(person) {
+function getPlanet(planet) {
 
   let planetList = document.querySelector(".planet");
   erase(planetList)
 
-
   let loading = document.querySelector(".loadingBottomRight");
   loading.classList.remove('hidden');
 
-
-  getData(person.homeworld)
+  getData(planet)
 
     .then(function (response) {
+      let planetProperties = ["Name", "Rotation Period", "Orbital Period", "Diameter", "Climate", "Gravity", "Terrain"];
+      let planetData = [response.name, response.rotation_period, response.orbital_period, response.diameter, response.climate, response.gravity, response.terrain]
 
-      let planetData = Object.values(response);
-      let planetProperties = Object.keys(response);
-
-
-      for (i = 0; i < 6; i++) {//statisk lösning gör om
+      for (i = 0; i < planetProperties.length; i++) {
 
         if (i == 0) {
           newH3 = document.createElement("h3");
           newH3.append(planetData[i]);
           planetList.appendChild(newH3);
         } else {
-
           newLi = document.createElement("li");
           newLi.append(`${planetProperties[i]} : ${planetData[i]}`)
           planetList.appendChild(newLi);
@@ -101,17 +98,15 @@ function getPlanet(person) {
 
 function printNames(data) {
 
-
   let nameList = document.querySelector(".characters");
-
   erase(nameList)
 
 
   for (i = 0; i < data.results.length; i++) {
     let person = data.results[i]
-
-    let personalData = Object.values(person);
-    let personalProperties = Object.keys(person);
+    let personalProperties = ["Name", "Height", "Mass", "Hair color", "Skin color", "Eye color", "Birth year", "Gender"]
+    let personalData = [person.name, person.height, person.mass, person.hair_color, person.skin_color, person.eye_color, person.birth_year, person.gender]
+    
 
     let newLi = document.createElement("li");
     newA = document.createElement("a");
@@ -123,7 +118,7 @@ function printNames(data) {
       printPersonalData(personalProperties, personalData)
     })
     newA.addEventListener("click", function () {
-      getPlanet(person)
+      getPlanet(person.homeworld)
     })
 
     nameList.appendChild(newLi);
@@ -134,22 +129,7 @@ function printNames(data) {
 
 
 
-
-
-
-
-
-
 //Gå bakåt och framåt
-
-let pageNumber = 1;
-let footer = document.querySelector(".page");
-
-getData('http://swapi.dev/api/people/?page=1')
-.then(function (resultat) {
-  numberofPages = Math.ceil(resultat.count / 10);
-  footer.append(`${pageNumber} / ${numberofPages}`)//det här borde jag nog göra längst upp när sidan laddas
-});
 
 
 let backLink = document.querySelector(".back");
@@ -176,12 +156,10 @@ function goBack() {
     getData(url)
       .then(function (response) {
 
+        let numberofPages = Math.ceil(response.count / 10); //räknar hur många sidor och rundar uppåt
+
         erase(footer);
-        let numberofPages = Math.ceil(response.count / 10);
         footer.append(`${pageNumber} / ${numberofPages}`)
-
-
-
 
         printNames(response);
         loading.classList.add('hidden');
@@ -195,30 +173,27 @@ function goForward() {
   let nameList = document.querySelector(".characters");
   erase(nameList);
 
-
   let loading = document.querySelector(".loading");
   loading.classList.remove('hidden');
-
 
   let url = `http://swapi.dev/api/people/?page=${pageNumber}`;
   getData(url)
     .then(function (response) {
-        if (response.next != "null") {
-          pageNumber++;
-          erase(footer);
-          Math.ceil(response.count / 10);
-          footer.append(`${pageNumber} / ${numberofPages}`)
 
-          printNames(response);
-          loading.classList.add('hidden');
-        }
+      let numberofPages = Math.ceil(response.count / 10); //räknar hur många sidor och rundar uppåt
 
+      if (response.next != "null") {
+        pageNumber++;
 
-      })
+        erase(footer);
+        footer.append(`${pageNumber} / ${numberofPages}`)
 
-    }
+        printNames(response);
+        loading.classList.add('hidden');
+      }
+    })
+}
 
-      //visar loading första gången sidan hämtas
-
-
-      let loading = document.querySelector(".loading"); loading.classList.remove("hidden")
+//visar loading första gången sidan hämtas
+let loading = document.querySelector(".loading");
+loading.classList.remove("hidden")
