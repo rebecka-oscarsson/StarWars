@@ -4,11 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="starwars.js" defer></script>
     <link rel="stylesheet" href="starwars.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Ropa+Sans&display=swap" rel="stylesheet">
-    <title>Document</title>
+    <title>Star Wars Catalogue</title>
 </head>
 
 <body>
@@ -16,15 +18,19 @@
     <div class="wrapper">
 
         <header>
-            <h1>STAR WARS CATALOG</h1>
+            <h1>STAR WARS CATALOGUE</h1>
         </header>
-
-
 
         <section class="left">
 
             <h2>Characters</h2>
-            <div class="loading">loading...</div>
+
+            <div class="loading">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
             <div class="characters">
             </div>
 
@@ -36,25 +42,39 @@
 
         </section>
 
-
         <section class="right">
+
             <h2>Details</h2>
+
             <section class="topRight">
-                <div class="loadingTopRight hidden">loading...</div>
+
+                <div class="spinner-border loadingTopRight hidden" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+
                 <ul class="details">
                 </ul>
+                <div class="tabs"></div>
+
             </section>
 
             <section class="bottomRight">
 
-                <div class="loadingBottomRight hidden">loading...</div>
+                <div class="loadingBottomRight hidden">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
                 <ul class="planet">
                 </ul>
 
             </section>
+
         </section>
 
     </div>
+
 </body>
 
 </html>
