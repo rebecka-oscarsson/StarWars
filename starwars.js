@@ -1,19 +1,47 @@
+//förenkla: lägg in callback i getData
+//lägg ihop get tab data och get planet
+//var ska jag ha catch?
+
 //Hämtar från API
+let next;
+let previous;
 
-
-async function getData(url) {
+async function getData(url, callback, callback2) {
 
   let response = await fetch(url);
   if (!response.ok) {
     throw new Error(response.status)
   } else {
     let starWarsData = await response.json()
-
-    loading.classList.add("hidden")
-
+    next = starWarsData.next;
+    previous = starWarsData.previous;
+    callback(starWarsData);
+    if (callback2) {
+      callback2(starWarsData)
+    };
+    //gör så att det är ok att bara skicka in en callback
+    loading.classList.add("hidden");
     return starWarsData
   }
 }
+
+
+
+// async function getData(url) {
+
+//   let response = await fetch(url);
+//   if (!response.ok) {
+//     throw new Error(response.status)
+//   } else {
+//     let starWarsData = await response.json()
+//     next = starWarsData.next;
+//     previous = starWarsData.previous;
+//     console.log(next)
+//     loading.classList.add("hidden")
+
+//     return starWarsData
+//   }
+// }
 
 //Kör funktionen som hämtar och skriver ut data
 
@@ -23,22 +51,20 @@ const footer = document.querySelector(".page");
 let numberofPages;
 
 
-getData(firstPage)
-  .then(function (response) {
-    printNames(response); //skriver ut namn på 10 karaktärer
-    numberofPages = Math.ceil(response.count / 10); //räknar hur många sidor och rundar uppåt
-    footer.append(`${pageNumber} / ${numberofPages}`); //skriver ut sidnummer
-  })
-  .catch(function (error) {
-    alert("det gick inte att ladda sidan, " + error)
-  })
+getData(firstPage, printNames, printPageNumber)
+
+
+function printPageNumber(data) {
+  numberofPages = Math.ceil(data.count / data.results.length); //räknar hur många sidor och rundar uppåt
+  footer.append(`${pageNumber} / ${numberofPages}`); //skriver ut sidnummer}
+}
 
 
 //Skriver ut namnen på karaktärer och lägger till eventListeners
 function printNames(data) {
 
   const nameList = document.querySelector(".characters");
-  erase(nameList)
+  erase(nameList);
 
   for (i = 0; i < data.results.length; i++) {
     let person = data.results[i]
@@ -53,13 +79,13 @@ function printNames(data) {
       printPersonalData(personalProperties, personalData)
     })
     newA.addEventListener("click", function () {
-      getPlanet(person.homeworld)
+      // getPlanet(person.homeworld)
+      getData(person.homeworld, printPlanet)
     })
 
     newA.addEventListener("click", function () {
       createTabs(person.homeworld, person.species, person.vehicles, person.starships)
     })
-    console.log(person.species)
     nameList.appendChild(newA);
 
   }
@@ -74,6 +100,8 @@ const forwardLink = document.querySelector(".forward");
 forwardLink.addEventListener("click", goForward);
 const nameList = document.querySelector(".characters");
 
+
+
 function goBack() {
 
   if (pageNumber > 1) {
@@ -86,20 +114,23 @@ function goBack() {
 
     let url = `http://swapi.dev/api/people/?page=${pageNumber}`;
 
-    getData(url)
-      .then(function (response) {
+    getData(url, printNames)
+    // .then(function (response) {
 
-        erase(footer);
-        footer.append(`${pageNumber} / ${numberofPages}`)
+    erase(footer);
+    footer.append(`${pageNumber} / ${numberofPages}`)
 
-        printNames(response);
-        loading.classList.add('hidden');
-      })
-      .catch(function (error) {
-        alert("det gick inte att ladda sidan, " + error)
-      })
+    //   printNames(response);
+    //   loading.classList.add('hidden');
+    // })
+    // .catch(function (error) {
+    //   alert("det gick inte att ladda sidan, " + error)
+    // })
+
   }
 }
+
+
 
 
 
@@ -115,24 +146,35 @@ function goForward() {
 
     let url = `http://swapi.dev/api/people/?page=${pageNumber}`;
 
-    getData(url)
-      .then(function (response) {
+    getData(url, printNext)
+    // .then(function (response) {
 
-        if (response.next != "null") {
+    //   if (response.next != "null") {
 
-          erase(footer);
-          footer.append(`${pageNumber} / ${numberofPages}`)
+    //     erase(footer);
+    //     footer.append(`${pageNumber} / ${numberofPages}`)
 
-          printNames(response);
-          loading.classList.add('hidden');
-        }
-      })
-      .catch(function (error) {
-        alert("det gick inte att ladda sidan, " + error)
-      })
+    //     printNames(response);
+    //     loading.classList.add('hidden');
+    //   }
+    // })
+    // .catch(function (error) {
+    //   alert("det gick inte att ladda sidan, " + error)
+    // })
   }
 }
 
+function printNext(response) {
+
+  if (response.next != "null") {
+
+    erase(footer);
+    footer.append(`${pageNumber} / ${numberofPages}`)
+
+    printNames(response);
+    loading.classList.add('hidden');
+  }
+}
 
 //sudda
 function erase(element) {
@@ -179,27 +221,42 @@ function printPersonalData(properties, values) {
 
 
 //Skriver ut info om hemplanet när man klickar på karaktärerna
-function getPlanet(planet) {
+//ska göras om så den kan skickas in som callback
 
+function printPlanet(response) {
   const planetList = document.querySelector(".planet");
   erase(planetList);
-
   let loading = document.querySelector(".loadingBottomRight");
   loading.classList.remove('hidden');
-
-  getData(planet)
-
-    .then(function (response) {
-      let planetProperties = ["Name", "Rotation Period", "Orbital Period", "Diameter", "Climate", "Gravity", "Terrain"];
-      let planetValues = [response.name, response.rotation_period, response.orbital_period, response.diameter, response.climate, response.gravity, response.terrain]
-
-      printDetails(planetProperties, planetValues, planetList)
-      loading.classList.add('hidden');
-    })
+  let planetProperties = ["Name", "Rotation Period", "Orbital Period", "Diameter", "Climate", "Gravity", "Terrain"];
+  let planetValues = [response.name, response.rotation_period, response.orbital_period, response.diameter, response.climate, response.gravity, response.terrain];
+  printDetails(planetProperties, planetValues, planetList)
+  loading.classList.add('hidden');
 }
+
+// function getPlanet(planet) {
+
+//   const planetList = document.querySelector(".planet");
+//   erase(planetList);
+
+//   let loading = document.querySelector(".loadingBottomRight");
+//   loading.classList.remove('hidden');
+
+//   getData(planet)
+
+//     .then(function (response) {
+//       let planetProperties = ["Name", "Rotation Period", "Orbital Period", "Diameter", "Climate", "Gravity", "Terrain"];
+//       let planetValues = [response.name, response.rotation_period, response.orbital_period, response.diameter, response.climate, response.gravity, response.terrain]
+
+//       printDetails(planetProperties, planetValues, planetList)
+//       loading.classList.add('hidden');
+//     })
+// }
+
 
 
 //skriver ut infon för flikarna
+//ska göras om så den kan skickas in som callback
 function getTabData(tabData) {
 
   const planetList = document.querySelector(".planet");
@@ -216,24 +273,36 @@ function getTabData(tabData) {
   } else {
 
     tabData.forEach(function (item, index) {
-      getData(tabData[index])
+      getData(tabData[index], konstig);
 
-        .then(function (response) {
+      // .then(function (response) {
 
-          let speciesProperties = Object.keys(response);
-          let speciesValues = Object.values(response);
+      //   let speciesProperties = Object.keys(response);
+      //   let speciesValues = Object.values(response);
 
-          printDetails(speciesProperties, speciesValues, planetList);
+      //   printDetails(speciesProperties, speciesValues, planetList);
 
-          loading.classList.add('hidden');
-        })
-        .catch(function (error) {
-          alert(error)
-        })
+      //   loading.classList.add('hidden');
+      // })
+      // .catch(function (error) {
+      //   alert(error)
+      // })
 
     })
   }
 }
+
+function konstig(response) { //Här sket det sig vet ej varför
+
+  let speciesProperties = Object.keys(response);
+  let speciesValues = Object.values(response);
+
+  printDetails(speciesProperties, speciesValues, planetList);
+
+  loading.classList.add('hidden');
+}
+
+
 
 //gör att aktiv flik har annan färg
 function activateTab(tab) {
