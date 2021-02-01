@@ -1,13 +1,25 @@
-//förenkla: lägg in callback i getData
-//lägg ihop get tab data och get planet
-//var ska jag ha catch?
+//******************************
+//        VARIABLER 
+//******************************
 
-//Hämtar från API
 let next;
 let previous;
+const planetList = document.querySelector(".detailsListBottom");
+let pageNumber = 1;
+const firstPage = 'http://swapi.dev/api/people/?page=1'
+const footer = document.querySelector(".page");
+let numberofPages;
+const loadingLeft = document.querySelector(".loadingLeft");
+const loadingTopRight = document.querySelector(".loadingTopRight");
+const loadingBottomRight = document.querySelector(".loadingBottomRight");
 
-async function getData(url, callback, callback2) {
+//******************************
+//        FUNKTIONER 
+//******************************
 
+//Hämtar data från API, kör två funktioner med hämtad data som parametrar
+async function getData(url, spinnerIcon, callback, callback2) {
+  spinnerIcon.classList.remove("hidden");
   let response = await fetch(url);
   if (!response.ok) {
     throw new Error(response.status)
@@ -19,40 +31,17 @@ async function getData(url, callback, callback2) {
     if (callback2) {
       callback2(starWarsData)
     };
-    //gör så att det är ok att bara skicka in en callback
-    loading.classList.add("hidden");
+    //gör så att callback2 är optional
+    spinnerIcon.classList.add("hidden");
     return starWarsData
   }
 }
+//var ska jag ha catch? Hittar inte syntax
+//varför blir det 404 om jag ska hämta mer än ett dataset? (flera fordon etc)
 
-
-
-// async function getData(url) {
-
-//   let response = await fetch(url);
-//   if (!response.ok) {
-//     throw new Error(response.status)
-//   } else {
-//     let starWarsData = await response.json()
-//     next = starWarsData.next;
-//     previous = starWarsData.previous;
-//     console.log(next)
-//     loading.classList.add("hidden")
-
-//     return starWarsData
-//   }
-// }
-
-//Kör funktionen som hämtar och skriver ut data
-
-let pageNumber = 1;
-const firstPage = 'http://swapi.dev/api/people/?page=1'
-const footer = document.querySelector(".page");
-let numberofPages;
-
-
-getData(firstPage, printNames, printPageNumber)
-
+test = getData(firstPage, loadingLeft, printNames, printPageNumber)
+//här borde det räcka att jag sparar ner data i variabler till flikarna till höger - jag borde inte behöva hämta den igen
+console.log(test);
 
 function printPageNumber(data) {
   numberofPages = Math.ceil(data.count / data.results.length); //räknar hur många sidor och rundar uppåt
@@ -76,11 +65,10 @@ function printNames(data) {
     newA.append(person.name);
 
     newA.addEventListener("click", function () {
-      printPersonalData(personalProperties, personalData)
+      printList(personalProperties, personalData, document.querySelector(".detailsListTop"))
     })
     newA.addEventListener("click", function () {
-      // getPlanet(person.homeworld)
-      getData(person.homeworld, printPlanet)
+      getData(person.homeworld, loadingTopRight, printTabData)
     })
 
     newA.addEventListener("click", function () {
@@ -98,81 +86,36 @@ backLink.addEventListener("click", goBack);
 
 const forwardLink = document.querySelector(".forward");
 forwardLink.addEventListener("click", goForward);
+
 const nameList = document.querySelector(".characters");
 
 
 
 function goBack() {
-
   if (pageNumber > 1) {
-    erase(nameList)
-
-    let loading = document.querySelector(".loading");
-    loading.classList.remove('hidden');
-
+    erase(nameList);
     pageNumber--;
-
     let url = `http://swapi.dev/api/people/?page=${pageNumber}`;
-
-    getData(url, printNames)
-    // .then(function (response) {
-
+    getData(url, loadingLeft, printNames)
     erase(footer);
     footer.append(`${pageNumber} / ${numberofPages}`)
-
-    //   printNames(response);
-    //   loading.classList.add('hidden');
-    // })
-    // .catch(function (error) {
-    //   alert("det gick inte att ladda sidan, " + error)
-    // })
-
   }
 }
 
-
-
-
-
 function goForward() {
-
   if (pageNumber < numberofPages) {
     erase(nameList);
-
-    let loading = document.querySelector(".loading");
-    loading.classList.remove('hidden');
-
     pageNumber++;
-
     let url = `http://swapi.dev/api/people/?page=${pageNumber}`;
-
-    getData(url, printNext)
-    // .then(function (response) {
-
-    //   if (response.next != "null") {
-
-    //     erase(footer);
-    //     footer.append(`${pageNumber} / ${numberofPages}`)
-
-    //     printNames(response);
-    //     loading.classList.add('hidden');
-    //   }
-    // })
-    // .catch(function (error) {
-    //   alert("det gick inte att ladda sidan, " + error)
-    // })
+    getData(url, loadingLeft, printNext)
   }
 }
 
 function printNext(response) {
-
   if (response.next != "null") {
-
     erase(footer);
     footer.append(`${pageNumber} / ${numberofPages}`)
-
     printNames(response);
-    loading.classList.add('hidden');
   }
 }
 
@@ -185,18 +128,19 @@ function erase(element) {
   }
 }
 
-//Skriver ut listorna till höger
-function printDetails(properties, values, list) {
-
-
+//Skriver ut listorna till höger. varför bara den första om fler?
+function printList(properties, values, list) {
+  erase(list);
   for (i = 0; i < properties.length; i++) {
-
     if (i == 0) {
       let newH3 = document.createElement("h3");
       newH3.append(values[i]);
       list.appendChild(newH3);
-    } else {
-      newLi = document.createElement("li");
+    } else 
+    // if (!values[i].startsWith("http")||!values[i].isArray()) 
+    {
+      console.log(values[i])
+      let newLi = document.createElement("li");
       newLi.append(`${properties[i]} : ${values[i]}`)
       list.appendChild(newLi);
     }
@@ -205,168 +149,64 @@ function printDetails(properties, values, list) {
   list.appendChild(br);
 }
 
-//Skriver ut info om karaktärerna när man klickar på dem
-function printPersonalData(properties, values) {
+//hämtar och skriver ut infon för flikarna
+function renderTabData(tabData) {
 
-  let detailsList = document.querySelector(".details");
-  erase(detailsList)
-
-  let loading = document.querySelector(".loadingTopRight");
-  loading.classList.remove('hidden');
-
-  printDetails(properties, values, detailsList);
-
-  loading.classList.add('hidden');
-}
-
-
-//Skriver ut info om hemplanet när man klickar på karaktärerna
-//ska göras om så den kan skickas in som callback
-
-function printPlanet(response) {
-  const planetList = document.querySelector(".planet");
+  const planetList = document.querySelector(".detailsListBottom");
   erase(planetList);
-  let loading = document.querySelector(".loadingBottomRight");
-  loading.classList.remove('hidden');
-  let planetProperties = ["Name", "Rotation Period", "Orbital Period", "Diameter", "Climate", "Gravity", "Terrain"];
-  let planetValues = [response.name, response.rotation_period, response.orbital_period, response.diameter, response.climate, response.gravity, response.terrain];
-  printDetails(planetProperties, planetValues, planetList)
-  loading.classList.add('hidden');
-}
-
-// function getPlanet(planet) {
-
-//   const planetList = document.querySelector(".planet");
-//   erase(planetList);
-
-//   let loading = document.querySelector(".loadingBottomRight");
-//   loading.classList.remove('hidden');
-
-//   getData(planet)
-
-//     .then(function (response) {
-//       let planetProperties = ["Name", "Rotation Period", "Orbital Period", "Diameter", "Climate", "Gravity", "Terrain"];
-//       let planetValues = [response.name, response.rotation_period, response.orbital_period, response.diameter, response.climate, response.gravity, response.terrain]
-
-//       printDetails(planetProperties, planetValues, planetList)
-//       loading.classList.add('hidden');
-//     })
-// }
-
-
-
-//skriver ut infon för flikarna
-//ska göras om så den kan skickas in som callback
-function getTabData(tabData) {
-
-  const planetList = document.querySelector(".planet");
-  erase(planetList);
-
-  let loading = document.querySelector(".loadingBottomRight");
-  loading.classList.remove('hidden');
 
   if (tabData.length == 0) {
     const newH3 = document.createElement("h3");
-    loading.classList.add('hidden');
     newH3.append("No data available");
     planetList.appendChild(newH3);
   } else {
+    tabData.forEach((item, index) => getData(tabData[index], loadingBottomRight, printTabData));
+    //här måste jag hämta en gång till eftersom datan ligger på en adress en nivå under den första datan
+  }
+}
 
-    tabData.forEach(function (item, index) {
-      getData(tabData[index], konstig);
 
-      // .then(function (response) {
+//skriver ut listorna för flikarna. funkar ej om flera objekt! gör om
+function printTabData(response) {
+  
+      //jag kan returnera de här i getDatafunktionen och använda direkt? blir nog ej kortare
+      
+      printList(Object.keys(response), Object.values(response), planetList)
+  
+  }
 
-      //   let speciesProperties = Object.keys(response);
-      //   let speciesValues = Object.values(response);
 
-      //   printDetails(speciesProperties, speciesValues, planetList);
+  //gör att aktiv flik har annan färg
+  function activateTab(tab) {
+    var allTabs = document.querySelectorAll(".tabs>a");
+    for (var i = 0; i < allTabs.length; i++) {
+      allTabs[i].className = "inactive";
+    }
+    tab.className = "active";
+  }
 
-      //   loading.classList.add('hidden');
-      // })
-      // .catch(function (error) {
-      //   alert(error)
-      // })
 
+  //skapar flikar och lägger på eventlisteners
+  function createTabs(planet, species, vehicles, starships) {
+    const tabs = document.querySelector(".tabs")
+    erase(tabs);
+
+    const dataSets = [planet, species, vehicles, starships]
+    const tabNames = ["planet", "species", "vehicles", "starships"];
+
+    tabNames.forEach((item, index) => {
+      let newA = document.createElement("a");
+      newA.setAttribute("href", "#");
+      newA.append(item);
+      newA.addEventListener("click", function () {
+        renderTabData(dataSets[index])
+      })
+      newA.addEventListener("click", function () {
+        activateTab(newA)
+      })
+      tabs.appendChild(newA);
+      if (index == 0) {
+        newA.className = "active"
+      };
     })
   }
-}
-
-function konstig(response) { //Här sket det sig vet ej varför
-
-  let speciesProperties = Object.keys(response);
-  let speciesValues = Object.values(response);
-
-  printDetails(speciesProperties, speciesValues, planetList);
-
-  loading.classList.add('hidden');
-}
-
-
-
-//gör att aktiv flik har annan färg
-function activateTab(tab) {
-  var allTabs = document.querySelectorAll(".tabs>a");
-
-  for (var i = 0; i < allTabs.length; i++) {
-    allTabs[i].className = "inactive";
-  }
-  tab.className = "active";
-
-}
-
-function createTabs(planet, species, vehicles, starships) {
-  const tabs = document.querySelector(".tabs")
-  erase(tabs);
-
-  let newA0 = document.createElement("a");
-  newA0.setAttribute("href", "#");
-  newA0.className = "active";
-  newA0.append("Planet");
-  newA0.addEventListener("click", function () {
-    getPlanet(planet)
-  })
-  newA0.addEventListener("click", function () {
-    activateTab(newA0)
-  })
-  tabs.appendChild(newA0);
-
-  let newA = document.createElement("a");
-  newA.setAttribute("href", "#");
-  newA.append("Species");
-  newA.addEventListener("click", function () {
-    getTabData(species)
-  })
-  newA.addEventListener("click", function () {
-    activateTab(newA)
-  })
-
-  tabs.appendChild(newA);
-
-  let newA2 = document.createElement("a");
-  newA2.setAttribute("href", "#");
-  newA2.append("Vehicles");
-  newA2.addEventListener("click", function () {
-    getTabData(vehicles)
-  })
-  newA2.addEventListener("click", function () {
-    activateTab(newA2)
-  })
-  tabs.appendChild(newA2);
-
-  let newA3 = document.createElement("a");
-  newA3.setAttribute("href", "#");
-  newA3.append("Starships");
-  newA3.addEventListener("click", function () {
-    getTabData(starships)
-  })
-  newA3.addEventListener("click", function () {
-    activateTab(newA3)
-  })
-  tabs.appendChild(newA3);
-}
-
-
-//visar loading första gången sidan hämtas
-let loading = document.querySelector(".loading");
-loading.classList.remove("hidden")

@@ -7,7 +7,7 @@ body {
     padding: 0;
 }
 
-.loading {
+.loadingLeft {
     display: block;
     background-color: #C4C4C4;
     margin: auto;
