@@ -1,7 +1,7 @@
 //******************************
 //        VARIABLER 
 //******************************
-
+//halloj testing testing
 let next;
 let previous;
 const planetList = document.querySelector(".detailsListBottom");
