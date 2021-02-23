@@ -1,7 +1,7 @@
 //******************************
 //        VARIABLER 
 //******************************
-//halloj testing testing
+
 let next;
 let previous;
 const planetList = document.querySelector(".detailsListBottom");
@@ -45,11 +45,12 @@ console.log(test);
 
 function printPageNumber(data) {
   numberofPages = Math.ceil(data.count / data.results.length); //räknar hur många sidor och rundar uppåt
-  footer.append(`${pageNumber} / ${numberofPages}`); //skriver ut sidnummer}
+  footer.append(`${pageNumber} / ${numberofPages}`); //skriver ut sidnummer
 }
 
 
-//Skriver ut namnen på karaktärer och lägger till eventListeners
+//Skriver ut namnen på karaktärer i länkar och lägger till eventListeners
+//det borde gått att anvnda printList och sedan göra en till funktion som gör ev list
 function printNames(data) {
 
   const nameList = document.querySelector(".characters");
@@ -61,7 +62,7 @@ function printNames(data) {
     let personalData = [person.name, person.height, person.mass, person.hair_color, person.skin_color, person.eye_color, person.birth_year, person.gender]
 
     const newA = document.createElement("a");
-    newA.setAttribute("href", "#");
+    newA.setAttribute("href", "javascript:void(0)");
     newA.append(person.name);
 
     newA.addEventListener("click", function () {
@@ -128,18 +129,20 @@ function erase(element) {
   }
 }
 
-//Skriver ut listorna till höger. varför bara den första om fler?
+//Skriver ut listorna till höger. varför bara den första om fler? ex starships på obi wan
 function printList(properties, values, list) {
   erase(list);
   for (i = 0; i < properties.length; i++) {
+    console.log("värde: ",i, values[i])
     if (i == 0) {
       let newH3 = document.createElement("h3");
       newH3.append(values[i]);
       list.appendChild(newH3);
     } else 
-    // if (!values[i].startsWith("http")||!values[i].isArray()) 
+    // if (values[i].length>3 && !values[i].startsWith("http")
+    // && !values[i].isArray) 
     {
-      console.log(values[i])
+      
       let newLi = document.createElement("li");
       newLi.append(`${properties[i]} : ${values[i]}`)
       list.appendChild(newLi);
@@ -160,7 +163,9 @@ function renderTabData(tabData) {
     newH3.append("No data available");
     planetList.appendChild(newH3);
   } else {
-    tabData.forEach((item, index) => getData(tabData[index], loadingBottomRight, printTabData));
+    // tabData.forEach((item, index) => 
+    getData(tabData, loadingBottomRight, printTabData)
+    // );
     //här måste jag hämta en gång till eftersom datan ligger på en adress en nivå under den första datan
   }
 }
@@ -168,10 +173,15 @@ function renderTabData(tabData) {
 
 //skriver ut listorna för flikarna. funkar ej om flera objekt! gör om
 function printTabData(response) {
+  console.log("tabdata", response, "length", response.length)
   
       //jag kan returnera de här i getDatafunktionen och använda direkt? blir nog ej kortare
+      //nu behöver jag loopa objektetn
       
+       
       printList(Object.keys(response), Object.values(response), planetList)
+       
+      // for (object in response){printList(Object.keys(response[object]), Object.values(response[object]), planetList)}
   
   }
 
