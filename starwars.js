@@ -13,13 +13,20 @@ const loadingLeft = document.querySelector(".loadingLeft");
 const loadingTopRight = document.querySelector(".loadingTopRight");
 const loadingBottomRight = document.querySelector(".loadingBottomRight");
 
+//Gå bakåt och framåt
+const backLink = document.querySelector(".back");
+backLink.addEventListener("click", goBack);
+
+const forwardLink = document.querySelector(".forward");
+forwardLink.addEventListener("click", goForward);
+
+const nameList = document.querySelector(".characters");
+
 //******************************
 //        FUNKTIONER 
 //******************************
 
 //Hämtar data från API, kör två funktioner med hämtad data som parametrar
-
-
 async function getData(url, spinnerIcon, callback, callback2) {
   spinnerIcon.classList.remove("hidden");
   try {
@@ -39,18 +46,18 @@ async function getData(url, spinnerIcon, callback, callback2) {
       return starWarsData
     }
   } catch (e) {
-    alert(e);
+    console.log(e);//ändra så att det skrivs i lämplig ruta
   }
   spinnerIcon.classList.add("hidden")
 }
 
+//kör funktion första gången sidan laddas
 getData(firstPage, loadingLeft, printNames, printPageNumber)
 
 function printPageNumber(data) {
   numberofPages = Math.ceil(data.count / data.results.length); //räknar hur många sidor och rundar uppåt
   footer.append(`${pageNumber} / ${numberofPages}`); //skriver ut sidnummer
 }
-
 
 //Skriver ut namnen på karaktärer i länkar och lägger till eventListeners
 //det borde gått att anvnda printList och sedan göra en till funktion som gör ev list
@@ -68,10 +75,10 @@ function printNames(data) {
     newA.setAttribute("href", "javascript:void(0)");
     newA.append(person.name);
     newA.addEventListener("click", function () {
-      erase( document.querySelector(".detailsListTop"))
+      erase(document.querySelector(".detailsListTop"))
     })
     newA.addEventListener("click", function () {
-      erase( document.querySelector(".detailsListBottom"))
+      erase(document.querySelector(".detailsListBottom"))
     })
     newA.addEventListener("click", function () {
       printList(personalProperties, personalData, document.querySelector(".detailsListTop"))
@@ -87,18 +94,7 @@ function printNames(data) {
   }
 }
 
-
-//Gå bakåt och framåt
-const backLink = document.querySelector(".back");
-backLink.addEventListener("click", goBack);
-
-const forwardLink = document.querySelector(".forward");
-forwardLink.addEventListener("click", goForward);
-
-const nameList = document.querySelector(".characters");
-
-
-
+//går ett steg tillbaka. 
 function goBack() {
   if (pageNumber > 1) {
     erase(nameList);
@@ -110,6 +106,7 @@ function goBack() {
   }
 }
 
+//hämtar nästa sida och anropar printNext. Borde fixa så att hämtade sidor sparas i localStorage
 function goForward() {
   if (pageNumber < numberofPages) {
     erase(nameList);
@@ -119,6 +116,7 @@ function goForward() {
   }
 }
 
+//skriver ut nästa sida
 function printNext(response) {
   if (response.next != "null") {
     erase(footer);
@@ -136,15 +134,14 @@ function erase(element) {
   }
 }
 
-//Skriver ut listorna till höger. varför bara den första om fler? ex starships på obi wan
+//Skriver ut listorna till höger.
 function printList(properties, values, list) {
-  // erase(list);
   for (i in values) {
     if (i == 0) {
       let newH3 = document.createElement("h3");
       newH3.append(values[i]);
       list.appendChild(newH3);
-    } else if (!Array.isArray(values[i]) && !values[i].includes("http"))
+    } else if (values[i] != null && !Array.isArray(values[i]) && !values[i].includes("http"))
     {
       let newLi = document.createElement("li");
       newLi.append(`${properties[i]} : ${values[i]}`)
@@ -165,29 +162,18 @@ function renderTabData(tabData) {
     const newH3 = document.createElement("h3");
     newH3.append("No data available");
     planetList.appendChild(newH3);
-  } else {
-    for (dataset in tabData) {
+  }  
+    else if (Array.isArray(tabData))
+    {for (dataset in tabData) {
       getData(tabData[dataset], loadingBottomRight, printTabData)
-    }
-    // );
-    //här måste jag hämta en gång till eftersom datan ligger på en adress en nivå under den första datan
-  }
+    }}
+    else {getData(tabData, loadingBottomRight, printTabData)}
 }
 
-
-//skriver ut listorna för flikarna. funkar ej om flera objekt! gör om
+//skriver ut listorna för flikarna.
 function printTabData(response) {
-  console.log("tabdata", response, "length", response.length)
-
-  //jag kan returnera de här i getDatafunktionen och använda direkt? blir nog ej kortare
-  //nu behöver jag loopa objektetn
-
-  // response.forEach((item, index) => 
-  // {printList(Object.keys(response), Object.values(response), planetList)})
-  // erase(planetList);
   printList(Object.keys(response), Object.values(response), planetList)
 }
-
 
 //gör att aktiv flik har annan färg
 function activateTab(tab) {
@@ -198,13 +184,13 @@ function activateTab(tab) {
   tab.className = "active";
 }
 
-
 //skapar flikar och lägger på eventlisteners
 function createTabs(planet, species, vehicles, starships) {
   const tabs = document.querySelector(".tabs")
   erase(tabs);
 
   const dataSets = [planet, species, vehicles, starships]
+  console.log("planetdata:", planet);
   const tabNames = ["planet", "species", "vehicles", "starships"];
 
   tabNames.forEach((item, index) => {
