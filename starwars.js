@@ -6,7 +6,7 @@ let next;
 let previous;
 const planetList = document.querySelector(".detailsListBottom");
 let pageNumber = 1;
-const firstPage = 'http://swapi.dev/api/people/?page=1'
+const firstPage = 'https://swapi.dev/api/people/?page=1'
 const footer = document.querySelector(".page");
 let numberofPages;
 const loadingLeft = document.querySelector(".loadingLeft");
@@ -99,7 +99,7 @@ function goBack() {
   if (pageNumber > 1) {
     erase(nameList);
     pageNumber--;
-    let url = `http://swapi.dev/api/people/?page=${pageNumber}`;
+    let url = `https://swapi.dev/api/people/?page=${pageNumber}`;
     getData(url, loadingLeft, printNames)
     erase(footer);
     footer.append(`${pageNumber} / ${numberofPages}`)
@@ -111,7 +111,7 @@ function goForward() {
   if (pageNumber < numberofPages) {
     erase(nameList);
     pageNumber++;
-    let url = `http://swapi.dev/api/people/?page=${pageNumber}`;
+    let url = `https://swapi.dev/api/people/?page=${pageNumber}`;
     getData(url, loadingLeft, printNext)
   }
 }
