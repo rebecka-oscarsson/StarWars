@@ -190,7 +190,6 @@ function createTabs(planet, species, vehicles, starships) {
   erase(tabs);
 
   const dataSets = [planet, species, vehicles, starships]
-  console.log("planetdata:", planet);
   const tabNames = ["planet", "species", "vehicles", "starships"];
 
   tabNames.forEach((item, index) => {
