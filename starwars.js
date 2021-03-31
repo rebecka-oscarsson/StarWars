@@ -28,6 +28,7 @@ const nameList = document.querySelector(".characters");
 
 //Hämtar data från API, kör två funktioner med hämtad data som parametrar
 async function getData(url, spinnerIcon, callback, callback2) {
+  if(url.startsWith("http:")) {url.replace("http:", "https:")};
   spinnerIcon.classList.remove("hidden");
   try {
     let response = await fetch(url);
