@@ -1,2 +1,2 @@
 ## StarWars
-A school project to practise fetching from api:s
+A website that fetches data from the Starwars API (https://swapi.dev/)
