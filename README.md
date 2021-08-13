@@ -1,2 +1,2 @@
 ## StarWars
-A school project practising fetching from api:s
+A school project to practise fetching from api:s
